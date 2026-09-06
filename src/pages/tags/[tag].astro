@@ -1,0 +1,65 @@
+---
+import Page from "../../layouts/Page.astro";
+import PostItem from "../../components/PostItem.astro";
+import {
+    getPosts,
+    getAllTags,
+    sortTagsByCount,
+    slugifyTag,
+} from "../../lib/posts";
+import { siteConfig } from "../../lib/site";
+
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    const tags = getAllTags(posts);
+    return Object.keys(tags).map((tag) => ({
+        params: { tag: slugifyTag(tag) },
+        props: { tag },
+    }));
+}
+
+const { tag } = Astro.props;
+const posts = await getPosts();
+
+// The Sanity tag strings aren't in the path params, so match on slugified tags.
+const taggedPosts = posts.filter((post) =>
+    post.tags?.some((t) => slugifyTag(t) === tag),
+);
+const displayTag = taggedPosts[0]?.tags?.find(
+    (t) => slugifyTag(t) === tag,
+) ?? tag;
+---
+
+<Page title={`${displayTag} · ${siteConfig.name}`} description={`Posts tagged ${displayTag}.`}>
+    <section class="relative mx-auto w-full max-w-5xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
+        <span class="eyebrow fade-up">Topic</span>
+        <h1 class="text-gradient font-display fade-up fade-up-1 mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+            {displayTag}
+        </h1>
+
+        <ul class="fade-up fade-up-2 mt-12 flex flex-col border-t border-white/10">
+            {
+                taggedPosts.map((post) => (
+                    <li>
+                        <PostItem
+                            slug={post.slug}
+                            date={post.date}
+                            title={post.title}
+                            description={post.description}
+                            tags={post.tags}
+                        />
+                    </li>
+                ))
+            }
+        </ul>
+
+        <p class="fade-up fade-up-3 mt-8">
+            <a
+                href="/tags/"
+                class="font-mono text-xs uppercase tracking-[0.18em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
+            >
+                ← All tags
+            </a>
+        </p>
+    </section>
+</Page>

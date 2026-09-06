@@ -1,0 +1,31 @@
+---
+import Page from "../../layouts/Page.astro";
+import Tag from "../../components/Tag.astro";
+import { getPosts, getAllTags, sortTagsByCount } from "../../lib/posts";
+import { siteConfig } from "../../lib/site";
+
+const posts = await getPosts();
+const tags = getAllTags(posts);
+const sortedTags = sortTagsByCount(tags);
+---
+
+<Page title={`Tags · ${siteConfig.name}`} description="Topics I've written about.">
+    <section class="relative mx-auto w-full max-w-5xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
+        <span class="eyebrow fade-up">Topics</span>
+        <h1 class="text-gradient font-display fade-up fade-up-1 mt-6 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+            Tags
+        </h1>
+
+        <div class="fade-up fade-up-2 mt-10 flex flex-wrap gap-2">
+            {
+                sortedTags.length > 0 ? (
+                    sortedTags.map((tag) => (
+                        <Tag tag={tag} count={tags[tag]} />
+                    ))
+                ) : (
+                    <p class="text-[#9a9aa4]">No tags yet.</p>
+                )
+            }
+        </div>
+    </section>
+</Page>

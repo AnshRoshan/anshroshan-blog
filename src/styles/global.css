@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography" {
+    variant: "all";
+}
+
+/* ============================================================
+   Cool Ink + Mint design system (Ansh Roshan blog)
+   Accent: mint #22D3EE on neutral zinc ink #0A0A0B.
+   Display: Space Grotesk. Body: Inter. Mono: JetBrains Mono.
+   Single accent, dark theme locked, zero client-side JS.
+   ============================================================ */
+
+:root {
+    --ink: #0a0a0b;
+    --surface: #131316;
+    --paper: #e7e7ea;
+    --muted: #9a9aa4;
+    --accent: #22d3ee;
+    --accent-soft: rgba(34, 211, 238, 0.14);
+    --hairline: rgba(255, 255, 255, 0.08);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+    background-color: var(--ink);
+    color-scheme: dark;
+}
+
+body {
+    background-color: var(--ink);
+    color: var(--paper);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-mono {
+    font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+::selection {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+/* Subtle metallic ink gradient for large display headings. Top edge bright,
+   settling into muted — reads as lit from above. */
+.text-gradient,
+.text-gradient * {
+    background-image: linear-gradient(
+        180deg,
+        #f4f4f5 0%,
+        #c4c4cc 55%,
+        #8c8c97 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Hairline divider used to group content without card chrome */
+.hairline {
+    border-color: var(--hairline);
+}
+
+/* Eyebrow: mint dash + mono uppercase label */
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+}
+.eyebrow::before {
+    content: "";
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--accent);
+}
+
+/* CSS-only entrance: fade-up on load, no scroll listeners, no JS. */
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.fade-up {
+    animation: fade-up 0.8s var(--ease-out-expo) both;
+}
+.fade-up-1 {
+    animation-delay: 0.08s;
+}
+.fade-up-2 {
+    animation-delay: 0.16s;
+}
+.fade-up-3 {
+    animation-delay: 0.24s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fade-up {
+        animation: none;
+    }
+}
+
+/* Film-grain veil for cinematic texture; never intercepts pointer events. */
+.grain-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+}

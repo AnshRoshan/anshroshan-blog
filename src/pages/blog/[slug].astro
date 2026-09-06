@@ -1,0 +1,106 @@
+---
+import Page from "../../layouts/Page.astro";
+import Tag from "../../components/Tag.astro";
+import { getPost, getPosts, formatDate } from "../../lib/posts";
+import { urlForImage } from "../../lib/image";
+import { portableTextToHtml } from "../../lib/portable";
+import { siteConfig } from "../../lib/site";
+
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    return posts.map((post) => ({
+        params: { slug: post.slug },
+        props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const bodyHtml = portableTextToHtml(post.body);
+const coverImage = post.coverImage
+    ? urlForImage(post.coverImage).width(1600).url()
+    : null;
+
+const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    author: {
+        "@type": "Person",
+        name: siteConfig.author,
+        url: siteConfig.portfolioUrl,
+    },
+    url: new URL(`/blog/${post.slug}/`, Astro.site).toString(),
+    ...(coverImage ? { image: coverImage } : {}),
+});
+---
+
+<Page title={`${post.title} · ${siteConfig.name}`} description={post.description}>
+    <script type="application/ld+json" set:html={jsonLd} />
+
+    <article class="relative mx-auto w-full max-w-6xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
+        <a
+            href="/"
+            class="inline-flex items-center gap-1.5 rounded-sm font-mono text-xs uppercase tracking-[0.18em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
+        >
+            ← Back to writing
+        </a>
+
+        <header class="mt-8 border-b border-white/10 pb-10">
+            <h1 class="font-display text-4xl font-semibold leading-tight tracking-tight text-[#e7e7ea] sm:text-5xl">
+                {post.title}
+            </h1>
+            {
+                post.description ? (
+                    <p class="mt-5 max-w-3xl text-lg leading-relaxed text-[#9a9aa4]">
+                        {post.description}
+                    </p>
+                ) : null
+            }
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+                <time datetime={post.date} class="font-mono text-xs text-[#9a9aa4]">
+                    {formatDate(post.date)}
+                </time>
+                {
+                    post.tags?.length ? (
+                        <div class="flex flex-wrap gap-1.5">
+                            {post.tags.map((tag) => (
+                                <Tag tag={tag} />
+                            ))}
+                        </div>
+                    ) : null
+                }
+            </div>
+        </header>
+
+        {
+            coverImage ? (
+                <img
+                    src={coverImage}
+                    alt={post.coverImage?.alt || post.title}
+                    width="1600"
+                    height="900"
+                    loading="eager"
+                    class="mt-10 aspect-[16/9] w-full rounded-2xl border border-white/10 object-cover"
+                />
+            ) : null
+        }
+
+        <div class="prose prose-invert mt-10 max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-[#22d3ee] prose-strong:text-[#e7e7ea] prose-code:text-[#22d3ee]">
+            <Fragment set:html={bodyHtml} />
+        </div>
+
+        <div class="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-10">
+            <p class="font-mono text-xs text-[#9a9aa4]">
+                Written by {siteConfig.author}
+            </p>
+            <a
+                href={`${siteConfig.portfolioUrl}/contact`}
+                class="group inline-flex items-center gap-1.5 rounded-sm font-mono text-xs uppercase tracking-[0.16em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
+            >
+                Get in touch <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </article>
+</Page>

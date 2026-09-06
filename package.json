@@ -1,0 +1,23 @@
+{
+    "name": "anshroshan-blog",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview"
+    },
+    "dependencies": {
+        "@astrojs/rss": "^4.0.12",
+        "@astrojs/sitemap": "^3.6.0",
+        "@portabletext/to-html": "^2.0.16",
+        "@sanity/client": "^7.1.1",
+        "@sanity/image-url": "^2.1.1",
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.3.0",
+        "astro": "^5.20.0",
+        "github-slugger": "^2.0.0",
+        "tailwindcss": "^4.3.0"
+    }
+}

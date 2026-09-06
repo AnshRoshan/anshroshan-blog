@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import { siteConfig } from "../lib/site";
+---
+
+<Page title={`Not found · ${siteConfig.name}`}>
+    <section class="relative mx-auto w-full max-w-5xl px-6 pt-24 pb-40 md:px-10">
+        <span class="eyebrow">404</span>
+        <h1 class="text-gradient font-display mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+            Page not found
+        </h1>
+        <p class="mt-4 text-base text-[#9a9aa4]">
+            The page you're looking for doesn't exist or has moved.
+        </p>
+        <p class="mt-8">
+            <a
+                href="/"
+                class="font-mono text-xs uppercase tracking-[0.18em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
+            >
+                ← Back to writing
+            </a>
+        </p>
+    </section>
+</Page>

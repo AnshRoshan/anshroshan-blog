@@ -1,0 +1,23 @@
+---
+import { slugifyTag } from "../lib/posts";
+
+interface Props {
+    tag: string;
+    current?: boolean;
+    count?: number;
+}
+
+const { tag, current = false, count } = Astro.props;
+---
+
+<a
+    href={`/tags/${slugifyTag(tag)}/`}
+    class:list={[
+        "font-mono inline-flex items-center rounded-md border px-2.5 py-1 text-xs no-underline transition-colors",
+        current
+            ? "border-[#22d3ee]/40 bg-[#22d3ee]/10 text-[#22d3ee]"
+            : "border-white/10 text-[#9a9aa4] hover:border-[#22d3ee]/40 hover:text-[#22d3ee]",
+    ]}
+>
+    {tag}{count ? ` (${count})` : ""}
+</a>
