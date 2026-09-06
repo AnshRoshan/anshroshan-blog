@@ -1,5 +1,5 @@
 ---
-import { formatDate } from "../lib/posts";
+import { formatDate, slugifyTag } from "../lib/posts";
 
 interface Props {
     slug: string;
@@ -24,7 +24,7 @@ const { slug, title, description, date, tags } = Astro.props;
             <div class="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
                     <a
-                        href={`/tags/${tag}/`}
+                        href={`/tags/${slugifyTag(tag)}/`}
                         class="font-mono inline-flex items-center rounded-md border border-white/10 px-2.5 py-1 text-xs text-[#9a9aa4] no-underline transition-colors hover:border-[#22d3ee]/40 hover:text-[#22d3ee]"
                     >
                         {tag}

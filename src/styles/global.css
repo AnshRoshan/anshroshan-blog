@@ -1,7 +1,5 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography" {
-    variant: "all";
-}
+@plugin "@tailwindcss/typography";
 
 /* ============================================================
    Cool Ink + Mint design system (Ansh Roshan blog)
