@@ -6,6 +6,7 @@ import {
     getAllTags,
     sortTagsByCount,
     slugifyTag,
+    readTime,
 } from "../../lib/posts";
 import { siteConfig } from "../../lib/site";
 
@@ -25,41 +26,42 @@ const posts = await getPosts();
 const taggedPosts = posts.filter((post) =>
     post.tags?.some((t) => slugifyTag(t) === tag),
 );
-const displayTag = taggedPosts[0]?.tags?.find(
-    (t) => slugifyTag(t) === tag,
-) ?? tag;
+const displayTag =
+    taggedPosts[0]?.tags?.find((t) => slugifyTag(t) === tag) ?? tag;
 ---
 
-<Page title={`${displayTag} · ${siteConfig.name}`} description={`Posts tagged ${displayTag}.`}>
-    <section class="relative mx-auto w-full max-w-5xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
-        <span class="eyebrow fade-up">Topic</span>
-        <h1 class="text-gradient font-display fade-up fade-up-1 mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+<Page
+    title={`${displayTag} · ${siteConfig.name}`}
+    description={`Essays tagged ${displayTag}.`}
+>
+    <section class="settle pt-14 md:pt-20">
+        <nav
+            class="font-data text-[0.7rem] uppercase text-(--ink-faint)"
+            aria-label="Back"
+        >
+            <a href="/tags/" class="bloom">← All topics</a>
+        </nav>
+        <h1 class="font-display mt-8 text-[2.4rem] font-medium tracking-[-0.025em] md:text-[3rem]">
             {displayTag}
         </h1>
-
-        <ul class="fade-up fade-up-2 mt-12 flex flex-col border-t border-white/10">
-            {
-                taggedPosts.map((post) => (
-                    <li>
-                        <PostItem
-                            slug={post.slug}
-                            date={post.date}
-                            title={post.title}
-                            description={post.description}
-                            tags={post.tags}
-                        />
-                    </li>
-                ))
-            }
-        </ul>
-
-        <p class="fade-up fade-up-3 mt-8">
-            <a
-                href="/tags/"
-                class="font-mono text-xs uppercase tracking-[0.18em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
-            >
-                ← All tags
-            </a>
+        <p class="font-data mt-3 text-[0.7rem] uppercase text-(--ink-faint)">
+            {taggedPosts.length}
+            {taggedPosts.length === 1 ? "essay" : "essays"} under this topic
         </p>
     </section>
+
+    <div class="settle settle-1 mt-10 border-t border-(--rule)">
+        {
+            taggedPosts.map((post) => (
+                <PostItem
+                    slug={post.slug}
+                    date={post.date}
+                    title={post.title}
+                    description={post.description}
+                    tags={post.tags}
+                    readTime={readTime(post.body)}
+                />
+            ))
+        }
+    </div>
 </Page>

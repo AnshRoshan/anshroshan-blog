@@ -2,64 +2,128 @@
 import Page from "../layouts/Page.astro";
 import PostItem from "../components/PostItem.astro";
 import Tag from "../components/Tag.astro";
-import { getPosts, getAllTags, sortTagsByCount } from "../lib/posts";
+import {
+    getPosts,
+    getAllTags,
+    sortTagsByCount,
+    readTime,
+    bodyToText,
+} from "../lib/posts";
 import { siteConfig } from "../lib/site";
 
 const posts = await getPosts();
 const tags = getAllTags(posts);
 const sortedTags = sortTagsByCount(tags);
+
+// The issue's lead: the newest essay gets the display treatment.
+const [lead, ...earlier] = posts;
+const firstLines = bodyToText(lead?.body).slice(0, 180);
+const leadDeck =
+    lead?.description ??
+    (firstLines.length ? `${firstLines.trim()}…` : "");
 ---
 
 <Page title={`${siteConfig.title}`} description={siteConfig.description}>
-    <section class="relative mx-auto w-full max-w-5xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
-        <span class="eyebrow fade-up">Blog</span>
-        <h1
-            class="text-gradient font-display fade-up fade-up-1 mt-6 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
-        >
-            Writing
-        </h1>
-        <p class="fade-up fade-up-2 mt-4 max-w-[58ch] text-base text-[#9a9aa4]">
-            Notes on Gen AI, building with LLMs, and shipping software end to
-            end.
-        </p>
+    {
+        lead && (
+            <section class="settle pt-14 md:pt-20">
+                <a href={`/blog/${lead.slug}/`} class="group block">
+                    <h1 class="font-display max-w-[24ch] text-[2.7rem] leading-[1.04] font-medium tracking-[-0.025em] text-balance transition-colors duration-300 group-hover:text-(--vermilion) md:text-[3.6rem]">
+                        {lead.title}
+                    </h1>
+                    {leadDeck && (
+                        <p class="mt-6 max-w-[62ch] text-[1.25rem] leading-[1.55] text-(--ink-soft) md:text-[1.35rem]">
+                            {leadDeck}
+                        </p>
+                    )}
+                    <div class="font-data mt-7 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] uppercase text-(--ink-faint)">
+                        <time datetime={lead.date}>
+                            {new Date(lead.date).toLocaleDateString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                            })}
+                        </time>
+                        <span aria-hidden="true">·</span>
+                        <span>{readTime(lead.body)} read</span>
+                        {lead.tags?.length && (
+                            <>
+                                <span aria-hidden="true">·</span>
+                                <span>{lead.tags.join(" · ")}</span>
+                            </>
+                        )}
+                        <span
+                            class="font-data ml-1 text-(--vermilion)"
+                            aria-hidden="true"
+                        >
+                            Read the essay →
+                        </span>
+                    </div>
+                </a>
+            </section>
+        )
+    }
 
-        <div class="fade-up fade-up-3 mt-14 grid grid-cols-12 gap-10">
-            <div class="col-span-12 lg:col-span-8">
+    <div class="settle settle-1 mt-16 grid grid-cols-12 gap-x-4 gap-y-12 md:gap-x-10">
+        <section class="col-span-12 lg:col-span-9">
+            <h2
+                class="font-data border-b border-(--rule-strong) pb-3 text-[0.7rem] uppercase text-(--ink-soft)"
+            >
+                Earlier writings
+            </h2>
+            <div class="mt-8">
                 {
-                    posts.length > 0 ? (
-                        <ul class="flex flex-col border-t border-white/10">
-                            {posts.map((post) => (
-                                <li>
-                                    <PostItem
-                                        slug={post.slug}
-                                        date={post.date}
-                                        title={post.title}
-                                        description={post.description}
-                                        tags={post.tags}
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                    earlier.length > 0 ? (
+                        earlier.map((post, i) => (
+                            <PostItem
+                                index={earlier.length - i}
+                                slug={post.slug}
+                                date={post.date}
+                                title={post.title}
+                                description={post.description}
+                                tags={post.tags}
+                                readTime={readTime(post.body)}
+                            />
+                        ))
                     ) : (
-                        <p class="text-[#9a9aa4]">Nothing to see here yet.</p>
+                        <p class="py-10 text-[1.05rem] italic text-(--ink-soft)">
+                            The earlier writings are still in the drawer —
+                            this is the first piece.
+                        </p>
                     )
                 }
             </div>
+        </section>
 
-            <aside class="col-span-12 lg:col-span-4">
-                <div class="rounded-[24px] border border-white/10 bg-[#131316]/70 p-6 backdrop-blur-xl">
-                    <h2 class="font-mono text-xs uppercase tracking-[0.22em] text-[#9a9aa4]">
-                        Tags
-                    </h2>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        {
-                            sortedTags.map((tag) => (
-                                <Tag tag={tag} count={tags[tag]} />
-                            ))
-                        }
-                    </div>
-                </div>
-            </aside>
-        </div>
-    </section>
+        <aside class="col-span-12 lg:col-span-3">
+            <h2
+                class="font-data border-b border-(--rule) pb-3 text-[0.7rem] uppercase text-(--ink-soft)"
+            >
+                Topics
+            </h2>
+            <div class="mt-5 flex flex-wrap gap-2 lg:flex-col lg:items-start lg:gap-3">
+                {
+                    sortedTags.map((tag) => (
+                        <Tag tag={tag} count={tags[tag]} />
+                    ))
+                }
+            </div>
+            <p class="font-data mt-8 text-[0.7rem] uppercase text-(--ink-faint)">
+                <a href="/rss.xml" class="bloom">Subscribe via RSS</a>
+            </p>
+        </aside>
+    </div>
+
+    {
+        !lead && (
+            <section class="settle py-24 text-center">
+                <h1 class="font-display text-[2.4rem] font-medium tracking-[-0.02em]">
+                    The first essay is at the printers.
+                </h1>
+                <p class="mt-4 text-[1.05rem] italic text-(--ink-soft)">
+                    Nothing is published yet — check back shortly.
+                </p>
+            </section>
+        )
+    }
 </Page>

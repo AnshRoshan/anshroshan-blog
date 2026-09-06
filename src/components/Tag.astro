@@ -13,11 +13,13 @@ const { tag, current = false, count } = Astro.props;
 <a
     href={`/tags/${slugifyTag(tag)}/`}
     class:list={[
-        "font-mono inline-flex items-center rounded-md border px-2.5 py-1 text-xs no-underline transition-colors",
+        "font-data inline-flex items-center gap-2 border px-2.5 py-1 text-[0.7rem] uppercase no-underline transition-colors duration-300",
         current
-            ? "border-[#22d3ee]/40 bg-[#22d3ee]/10 text-[#22d3ee]"
-            : "border-white/10 text-[#9a9aa4] hover:border-[#22d3ee]/40 hover:text-[#22d3ee]",
+            ? "border-(--vermilion) text-(--vermilion)"
+            : "border-(--rule) text-(--ink-soft) hover:border-(--vermilion) hover:text-(--vermilion)",
     ]}
 >
-    {tag}{count ? ` (${count})` : ""}
+    {current && <span class="contents-dot" aria-hidden="true" />}
+    {tag}
+    {count !== undefined && <span class="text-(--ink-faint)">{count}</span>}
 </a>

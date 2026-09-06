@@ -2,55 +2,59 @@
 import { formatDate, slugifyTag } from "../lib/posts";
 
 interface Props {
+    index?: number;
     slug: string;
     title: string;
     description?: string;
     date: string;
     tags?: string[];
+    readTime?: string;
 }
 
-const { slug, title, description, date, tags } = Astro.props;
+const { index, slug, title, description, date, tags, readTime } = Astro.props;
 ---
 
-<article class="group flex flex-col gap-3 border-b border-white/10 py-7">
-    <h2 class="font-display text-2xl font-semibold tracking-tight transition-colors group-hover:text-[#22d3ee]">
-        <a href={`/blog/${slug}/`} class="text-[#e7e7ea] no-underline transition-colors group-hover:text-[#22d3ee]">
-            {title}
-        </a>
-    </h2>
-
-    {
-        tags?.length ? (
-            <div class="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                    <a
-                        href={`/tags/${slugifyTag(tag)}/`}
-                        class="font-mono inline-flex items-center rounded-md border border-white/10 px-2.5 py-1 text-xs text-[#9a9aa4] no-underline transition-colors hover:border-[#22d3ee]/40 hover:text-[#22d3ee]"
-                    >
-                        {tag}
-                    </a>
+<article class="group border-b border-(--rule) py-8 first:pt-0">
+    <a href={`/blog/${slug}/`} class="grid grid-cols-12 gap-x-4 gap-y-3 md:gap-x-8">
+        {
+            index !== undefined && (
+                <span
+                    class="font-data col-span-2 pt-2 text-(--ink-faint) md:col-span-1"
+                    aria-hidden="true"
+                >
+                    {String(index).padStart(2, "0")}
+                </span>
+            )
+        }
+        <div class:list={[index !== undefined ? "col-span-10 md:col-span-8" : "col-span-12 md:col-span-9"]}>
+            <h2
+                class="font-display text-[1.55rem] leading-[1.15] font-medium tracking-[-0.02em] text-balance transition-colors duration-300 group-hover:text-(--vermilion)"
+            >
+                {title}
+            </h2>
+            {
+                description && (
+                    <p class="mt-2.5 max-w-[58ch] text-[1rem] leading-[1.6] text-(--ink-soft)">
+                        {description}
+                    </p>
+                )
+            }
+            <div class="font-data mt-3.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] uppercase text-(--ink-faint)">
+                <time datetime={date}>{formatDate(date)}</time>
+                {tags?.length && (
+                    <span class="hidden sm:inline" aria-hidden="true">·</span>
+                )}
+                {tags?.map((tag) => (
+                    <span class="not-italic">{tag}</span>
                 ))}
             </div>
-        ) : null
-    }
-
-    {
-        description ? (
-            <p class="max-w-2xl text-sm leading-relaxed text-[#9a9aa4]">
-                {description}
-            </p>
-        ) : null
-    }
-
-    <div class="mt-1 flex items-center justify-between">
-        <p class="font-mono flex items-center gap-1.5 text-xs text-[#9a9aa4]">
-            {formatDate(date)}
-        </p>
-        <a
-            href={`/blog/${slug}/`}
-            class="inline-flex items-center gap-1.5 rounded-sm text-xs font-medium uppercase tracking-[0.12em] text-[#e7e7ea] no-underline transition-colors hover:text-[#22d3ee]"
-        >
-            Read more <span aria-hidden="true">→</span>
-        </a>
-    </div>
+        </div>
+        {
+            readTime && (
+                <span class="font-data col-span-12 hidden pt-2 text-right text-(--ink-faint) md:col-span-3 md:block">
+                    {readTime}
+                </span>
+            )
+        }
+    </a>
 </article>

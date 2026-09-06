@@ -27,7 +27,8 @@ const postFields = `
     description,
     "date": publishedAt,
     tags,
-    coverImage
+    coverImage,
+    body
 `;
 
 /** All published posts, newest first (list + tag aggregation). */
@@ -86,4 +87,23 @@ export function sortTagsByCount(tags: Record<string, number>) {
 
 export function slugifyTag(tag: string) {
     return slug(tag);
+}
+
+/** Flatten Portable Text blocks to plain text (used for decks + read time). */
+export function bodyToText(body?: unknown[]): string {
+    if (!body) return "";
+    const out: string[] = [];
+    for (const block of body) {
+        const b = block as { _type?: string; children?: { text?: string }[] };
+        if (b._type === "block" && Array.isArray(b.children)) {
+            out.push(b.children.map((c) => c.text ?? "").join(""));
+        }
+    }
+    return out.join(" ");
+}
+
+/** Reading time in whole minutes, at 210 wpm. */
+export function readTime(body?: unknown[]): string {
+    const words = bodyToText(body).split(/\s+/).filter(Boolean).length;
+    return `${Math.max(1, Math.round(words / 210))} min`;
 }

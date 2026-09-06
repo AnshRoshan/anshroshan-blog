@@ -1,7 +1,12 @@
 ---
 import Page from "../../layouts/Page.astro";
 import Tag from "../../components/Tag.astro";
-import { getPost, getPosts, formatDate } from "../../lib/posts";
+import {
+    getPost,
+    getPosts,
+    formatDate,
+    readTime,
+} from "../../lib/posts";
 import { urlForImage } from "../../lib/image";
 import { portableTextToHtml } from "../../lib/portable";
 import { siteConfig } from "../../lib/site";
@@ -10,11 +15,15 @@ export async function getStaticPaths() {
     const posts = await getPosts();
     return posts.map((post) => ({
         params: { slug: post.slug },
-        props: { post },
     }));
 }
 
-const { post } = Astro.props;
+const { slug } = Astro.params;
+// The listing query omits bodies; fetch the full post for the essay page.
+const post = await getPost(slug ?? "");
+if (!post) {
+    return new Response(null, { status: 404 });
+}
 const bodyHtml = portableTextToHtml(post.body);
 const coverImage = post.coverImage
     ? urlForImage(post.coverImage).width(1600).url()
@@ -39,68 +48,102 @@ const jsonLd = JSON.stringify({
 <Page title={`${post.title} · ${siteConfig.name}`} description={post.description}>
     <script type="application/ld+json" set:html={jsonLd} />
 
-    <article class="relative mx-auto w-full max-w-6xl px-6 pt-12 pb-24 md:px-10 md:pt-16">
-        <a
-            href="/"
-            class="inline-flex items-center gap-1.5 rounded-sm font-mono text-xs uppercase tracking-[0.18em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
+    <article class="settle pt-12 md:pt-16">
+        <nav
+            class="font-data text-[0.7rem] uppercase text-(--ink-faint)"
+            aria-label="Back"
         >
-            ← Back to writing
-        </a>
+            <a href="/" class="bloom">← Contents</a>
+        </nav>
 
-        <header class="mt-8 border-b border-white/10 pb-10">
-            <h1 class="font-display text-4xl font-semibold leading-tight tracking-tight text-[#e7e7ea] sm:text-5xl">
+        <header class="mt-10 border-b border-(--rule) pb-10">
+            <h1
+                class="font-display max-w-[26ch] text-[2.4rem] leading-[1.06] font-medium tracking-[-0.025em] text-balance md:text-[3.2rem]"
+            >
                 {post.title}
             </h1>
             {
-                post.description ? (
-                    <p class="mt-5 max-w-3xl text-lg leading-relaxed text-[#9a9aa4]">
+                post.description && (
+                    <p class="mt-6 max-w-[60ch] text-[1.25rem] leading-[1.55] italic text-(--ink-soft)">
                         {post.description}
                     </p>
-                ) : null
+                )
             }
-            <div class="mt-5 flex flex-wrap items-center gap-3">
-                <time datetime={post.date} class="font-mono text-xs text-[#9a9aa4]">
-                    {formatDate(post.date)}
-                </time>
-                {
-                    post.tags?.length ? (
-                        <div class="flex flex-wrap gap-1.5">
-                            {post.tags.map((tag) => (
-                                <Tag tag={tag} />
-                            ))}
-                        </div>
-                    ) : null
-                }
+            <div class="font-data mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.7rem] uppercase text-(--ink-faint)">
+                <span class="text-(--ink)">By {siteConfig.author}</span>
+                <span aria-hidden="true">·</span>
+                <time datetime={post.date}>{formatDate(post.date)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{readTime(post.body)} read</span>
             </div>
+            {
+                post.tags?.length && (
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        {post.tags.map((tag) => (
+                            <Tag tag={tag} />
+                        ))}
+                    </div>
+                )
+            }
         </header>
 
         {
-            coverImage ? (
-                <img
-                    src={coverImage}
-                    alt={post.coverImage?.alt || post.title}
-                    width="1600"
-                    height="900"
-                    loading="eager"
-                    class="mt-10 aspect-[16/9] w-full rounded-2xl border border-white/10 object-cover"
-                />
-            ) : null
+            coverImage && (
+                <figure class="mt-10">
+                    <img
+                        src={coverImage}
+                        alt={post.coverImage?.alt || post.title}
+                        width="1600"
+                        height="900"
+                        loading="eager"
+                        class="aspect-[16/9] w-full rounded-[10px] border border-(--rule) object-cover"
+                    />
+                    {
+                        post.coverImage?.alt && (
+                            <figcaption class="mt-3 text-[0.95rem] italic text-(--ink-soft)">
+                                {post.coverImage.alt}
+                            </figcaption>
+                        )
+                    }
+                </figure>
+            )
         }
 
-        <div class="prose prose-invert mt-10 max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-[#22d3ee] prose-strong:text-[#e7e7ea] prose-code:text-[#22d3ee]">
-            <Fragment set:html={bodyHtml} />
-        </div>
+        <div class="essay mt-12" set:html={bodyHtml} />
 
-        <div class="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-10">
-            <p class="font-mono text-xs text-[#9a9aa4]">
-                Written by {siteConfig.author}
-            </p>
-            <a
-                href={`${siteConfig.portfolioUrl}/contact`}
-                class="group inline-flex items-center gap-1.5 rounded-sm font-mono text-xs uppercase tracking-[0.16em] text-[#9a9aa4] no-underline transition-colors hover:text-[#22d3ee]"
-            >
-                Get in touch <span aria-hidden="true">↗</span>
-            </a>
-        </div>
+        <!-- End matter -->
+        <footer class="mt-20 border-t border-(--rule-strong) pt-10">
+            <div class="grid grid-cols-12 gap-x-4 gap-y-6 md:gap-x-8">
+                <div class="col-span-12 md:col-span-8">
+                    <p class="font-display text-[1.2rem] font-medium">
+                        {siteConfig.author}
+                    </p>
+                    <p class="mt-2 max-w-[52ch] text-[1rem] leading-[1.6] text-(--ink-soft)">
+                        Gen AI developer building agentic systems, RAG
+                        pipelines, and full-stack AI products that ship to
+                        production. This essay is part of an open notebook —
+                        the working notes come from shipping, not theorizing.
+                    </p>
+                </div>
+                <div class="col-span-12 md:col-span-4 md:text-right">
+                    <p class="font-data text-[0.7rem] uppercase text-(--ink-faint)">
+                        Continue
+                    </p>
+                    <p class="mt-3 space-x-5">
+                        <a
+                            href={`${siteConfig.portfolioUrl}/contact`}
+                            target="_blank"
+                            rel="noreferrer"
+                            class="bloom font-data text-[0.7rem] uppercase"
+                        >
+                            Get in touch<span aria-hidden="true" class="ml-1">↗</span>
+                        </a>
+                        <a href="/" class="bloom font-data text-[0.7rem] uppercase">
+                            More writings
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </footer>
     </article>
 </Page>
