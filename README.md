@@ -23,6 +23,14 @@ Pages) with `dist/` as the output directory.
 
 ## Writing
 
-Publish or edit posts in Sanity Studio (currently hosted in the main portfolio
-repo's Sanity project). New posts appear after the next build/redeploy; wire a
-Sanity webhook to your host's deploy hook for automatic publishing.
+The Sanity Studio lives in `studio/` inside this repo:
+
+```sh
+cd studio
+npm install
+npm run dev        # local studio at http://localhost:3333
+npm run deploy     # optional: host it at a free *.sanity.studio URL
+```
+
+Publish a post in the Studio, then rebuild/redeploy the site (wire a Sanity
+webhook to your host's deploy hook for automatic publishing).
