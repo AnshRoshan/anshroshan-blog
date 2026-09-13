@@ -48,6 +48,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         />
     </head>
     <body>
+        <script is:inline>
+            try {
+                var t = localStorage.getItem("blog-theme");
+                var c = document.documentElement.classList;
+                if (t === "dark" || t === "light") {
+                    c.toggle("dark", t === "dark");
+                } else {
+                    c.toggle(
+                        "dark",
+                        !window.matchMedia("(prefers-color-scheme: light)")
+                            .matches,
+                    );
+                }
+            } catch (e) {}
+        </script>
         <slot />
     </body>
 </html>

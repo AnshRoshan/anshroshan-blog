@@ -27,25 +27,29 @@
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Night edition — pure CSS, no toggle script */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --paper: #15130f;
-        --paper-deep: #1e1b16;
-        --ink: #ece7dd;
-        --ink-soft: #a8a196;
-        --ink-faint: #8a847a;
-        --rule: rgba(236, 231, 221, 0.16);
-        --rule-strong: rgba(236, 231, 221, 0.55);
-        --vermilion: #e0673f;
-        --vermilion-soft: rgba(224, 103, 63, 0.2);
-    }
+/* Night edition. The pre-paint script in Base.astro resolves the stored
+   preference (or the OS setting on first visit) into a `dark` class on
+   <html>, so both themes are fully manual-togglable. */
+.dark {
+    --paper: #15130f;
+    --paper-deep: #1e1b16;
+    --ink: #ece7dd;
+    --ink-soft: #a8a196;
+    --ink-faint: #8a847a;
+    --rule: rgba(236, 231, 221, 0.16);
+    --rule-strong: rgba(236, 231, 221, 0.55);
+    --vermilion: #e0673f;
+    --vermilion-soft: rgba(224, 103, 63, 0.2);
 }
 
 html {
     background: var(--paper);
-    color-scheme: light dark;
+    color-scheme: light;
     scroll-behavior: smooth;
+}
+
+html.dark {
+    color-scheme: dark;
 }
 
 body {
@@ -385,4 +389,119 @@ a {
 
 .essay-nav a.next {
     text-align: right;
+}
+
+/* ---------- inline marks ---------- */
+
+.essay u {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+}
+
+.essay s,
+.essay del {
+    text-decoration-color: var(--muted);
+    color: var(--muted);
+}
+
+.essay mark {
+    background: var(--accent-soft, rgba(34, 211, 238, 0.22));
+    color: inherit;
+    padding: 0.05em 0.25em;
+    border-radius: 4px;
+}
+
+.essay kbd {
+    font-family: var(--font-data);
+    font-size: 0.8em;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 0.1em 0.45em;
+    background: var(--paper-deep);
+}
+
+/* ---------- callouts ---------- */
+
+.essay .callout {
+    --callout-color: var(--accent);
+    margin: 2em 0;
+    border: 1px solid color-mix(in oklab, var(--callout-color) 35%, transparent);
+    border-left: 3px solid var(--callout-color);
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--callout-color) 8%, var(--paper));
+    padding: 1.1rem 1.4rem;
+}
+
+.essay .callout .callout-body p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+}
+
+.essay .callout .callout-body p + p {
+    margin-top: 0.8em;
+}
+
+.essay .callout-info { --callout-color: var(--accent); }
+.essay .callout-success { --callout-color: #34d399; }
+.essay .callout-warning { --callout-color: #f59e0b; }
+.essay .callout-danger { --callout-color: #f87171; }
+
+.essay .callout .callout-body :is(strong, em) { color: var(--ink); }
+
+/* ---------- tables ---------- */
+
+.essay table {
+    margin: 2em 0;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.essay th {
+    font-family: var(--font-data);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: left;
+}
+
+.essay th,
+.essay td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--rule);
+}
+
+.essay tr:last-child td {
+    border-bottom: 0;
+}
+
+/* ---------- embeds ---------- */
+
+.essay iframe {
+    display: block;
+    border: 0;
+}
+
+/* footnote-ish small text */
+.essay small {
+    color: var(--muted);
+}
+
+/* ---------- theme toggle (icons swap via the html.dark class) ---------- */
+
+.theme-toggle .icon-sun {
+    display: none;
+}
+.theme-toggle .icon-moon {
+    display: block;
+}
+.dark .theme-toggle .icon-sun {
+    display: block;
+}
+.dark .theme-toggle .icon-moon {
+    display: none;
 }

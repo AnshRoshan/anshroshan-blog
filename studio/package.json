@@ -10,10 +10,14 @@
     "dependencies": {
         "@sanity/code-input": "^7.3.8",
         "@sanity/icons": "^3.7.4",
+        "@sanity/table": "^3.1.16",
         "@sanity/vision": "^6.12.0",
         "react": "^19.2.6",
         "react-dom": "^19.2.6",
         "sanity": "^6.12.0",
         "styled-components": "^6.4.2"
+    },
+    "devDependencies": {
+        "@types/node": "^26.5.1"
     }
 }
