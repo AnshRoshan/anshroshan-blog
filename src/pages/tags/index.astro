@@ -8,37 +8,53 @@ const tags = getAllTags(posts);
 const sortedTags = sortTagsByCount(tags);
 ---
 
-<Page title={`Topics · ${siteConfig.name}`} description="Topics I've written about.">
-    <section class="settle pt-14 md:pt-20">
-        <h1 class="font-display text-[2.4rem] font-medium tracking-[-0.025em] text-balance md:text-[3rem]">
+<Page
+    title={`Topics · ${siteConfig.name}`}
+    description="Every destination on the board, with the number of entries at each."
+>
+    <section class="mx-auto w-full max-w-[76rem] px-6 pt-14 md:px-10 md:pt-20">
+        <div class="seam roll-in"><span>Destination board</span></div>
+        <h1
+            class="font-display roll-in roll-in-1 mt-8 text-4xl text-(--ink) sm:text-6xl"
+        >
             Topics
         </h1>
-        <p class="mt-4 max-w-[52ch] text-[1.1rem] italic text-(--ink-soft)">
-            Every thread in the notebook, with the number of entries in each.
+        <p class="roll-in roll-in-2 mt-4 max-w-[52ch] text-(--ink-soft)">
+            Every thread in the notebook, with the number of entries at each
+            stop.
         </p>
     </section>
 
-    <div class="settle settle-1 mt-12 border-t border-(--rule)">
-        {
-            sortedTags.length > 0 ? (
-                sortedTags.map((tag) => (
+    <section class="mx-auto w-full max-w-[76rem] px-6 pt-12 md:px-10">
+        <div class="roll-in roll-in-2 grid grid-cols-1 border border-(--rule) sm:grid-cols-2 lg:grid-cols-3">
+            {
+                sortedTags.map((tag, i) => (
                     <a
                         href={`/tags/${slugifyTag(tag)}/`}
-                        class="group flex items-baseline justify-between border-b border-(--rule) py-5 transition-colors"
+                        class:list={[
+                            "group border-(--rule) p-7 transition-colors hover:bg-(--panel)",
+                            i < sortedTags.length - 1 && "border-b sm:border-b sm:border-r",
+                        ]}
                     >
-                        <span class="font-display text-[1.3rem] font-medium tracking-[-0.02em] transition-colors duration-300 group-hover:text-(--vermilion)">
+                        <span class="font-data text-(--chrome)">
+                            {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <h2 class="font-display mt-3 text-xl tracking-[0.02em] text-(--ink) transition-colors group-hover:text-(--chrome)">
                             {tag}
-                        </span>
-                        <span class="font-data text-[0.7rem] uppercase text-(--ink-faint)">
+                        </h2>
+                        <p class="font-data mt-2 text-(--ink-faint)">
                             {tags[tag]} {tags[tag] === 1 ? "essay" : "essays"}
-                        </span>
+                        </p>
                     </a>
                 ))
-            ) : (
-                <p class="border-b border-(--rule) py-10 text-[1.05rem] italic text-(--ink-soft)">
-                    No topics yet — the notebook is empty.
-                </p>
-            )
-        }
-    </div>
+            }
+            {
+                sortedTags.length === 0 && (
+                    <p class="p-7 text-(--ink-soft)">
+                        No topics yet — the board is blank.
+                    </p>
+                )
+            }
+        </div>
+    </section>
 </Page>

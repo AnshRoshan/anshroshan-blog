@@ -3,24 +3,19 @@ import Page from "../layouts/Page.astro";
 import { siteConfig } from "../lib/site";
 ---
 
-<Page title={`Not found · ${siteConfig.name}`}>
-    <section class="settle py-28 text-center md:py-36">
-        <p class="font-data text-[0.7rem] uppercase text-(--ink-faint)">
-            Page not found · 404
-        </p>
-        <h1 class="font-display mx-auto mt-6 max-w-[20ch] text-[2.4rem] leading-[1.08] font-medium tracking-[-0.025em] text-balance md:text-[3rem]">
-            This page was cut from the final edition.
+<Page title={`Off route · ${siteConfig.name}`}>
+    <section class="mx-auto w-full max-w-[76rem] px-6 py-28 text-center md:px-10 md:py-36">
+        <div class="seam justify-center"><span>Signal fault</span></div>
+        <p class="font-data mt-10 text-(--chrome)">Error 404</p>
+        <h1 class="font-display mx-auto mt-6 max-w-[22ch] text-4xl leading-[1.05] text-(--ink) sm:text-6xl">
+            This course was taken off the board.
         </h1>
-        <p class="mx-auto mt-5 max-w-[46ch] text-[1.05rem] italic text-(--ink-soft)">
-            The address may have moved, or it never made it past the editor.
+        <p class="mx-auto mt-5 max-w-[46ch] text-(--ink-soft)">
+            The address may have moved, or it never made it past the
+            dispatcher.
         </p>
-        <p class="mt-9">
-            <a
-                href="/"
-                class="bloom font-data text-[0.7rem] uppercase text-(--ink)"
-            >
-                ← Back to contents
-            </a>
+        <p class="mt-10">
+            <a href="/" class="plate">← Back to the board</a>
         </p>
     </section>
 </Page>

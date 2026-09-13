@@ -1,12 +1,12 @@
 ---
 import Page from "../../layouts/Page.astro";
-import PostItem from "../../components/PostItem.astro";
 import {
     getPosts,
     getAllTags,
     sortTagsByCount,
     slugifyTag,
     readTime,
+    formatDate,
 } from "../../lib/posts";
 import { siteConfig } from "../../lib/site";
 
@@ -34,34 +34,54 @@ const displayTag =
     title={`${displayTag} · ${siteConfig.name}`}
     description={`Essays tagged ${displayTag}.`}
 >
-    <section class="settle pt-14 md:pt-20">
-        <nav
-            class="font-data text-[0.7rem] uppercase text-(--ink-faint)"
-            aria-label="Back"
-        >
-            <a href="/tags/" class="bloom">← All topics</a>
-        </nav>
-        <h1 class="font-display mt-8 text-[2.4rem] font-medium tracking-[-0.025em] md:text-[3rem]">
-            {displayTag}
-        </h1>
-        <p class="font-data mt-3 text-[0.7rem] uppercase text-(--ink-faint)">
-            {taggedPosts.length}
-            {taggedPosts.length === 1 ? "essay" : "essays"} under this topic
-        </p>
+    <section class="mx-auto w-full max-w-[76rem] px-6 pt-14 md:px-10 md:pt-20">
+        <div class="seam roll-in"><span>Destination</span></div>
+        <div class="roll-in roll-in-1 mt-8 flex flex-wrap items-end justify-between gap-6">
+            <h1 class="font-display text-4xl text-(--ink) sm:text-6xl">
+                {displayTag}
+            </h1>
+            <p class="font-data text-(--ink-faint)">
+                {taggedPosts.length}
+                {taggedPosts.length === 1 ? "essay" : "essays"} at this stop
+            </p>
+        </div>
     </section>
 
-    <div class="settle settle-1 mt-10 border-t border-(--rule)">
-        {
-            taggedPosts.map((post) => (
-                <PostItem
-                    slug={post.slug}
-                    date={post.date}
-                    title={post.title}
-                    description={post.description}
-                    tags={post.tags}
-                    readTime={readTime(post.body)}
-                />
-            ))
-        }
-    </div>
+    <section class="mx-auto w-full max-w-[76rem] px-6 pt-10 md:px-10">
+        <div class="roll-in roll-in-2 border-t border-(--rule)">
+            {
+                taggedPosts.map((post) => (
+                    <a
+                        href={`/blog/${post.slug}/`}
+                        class="group grid grid-cols-12 items-baseline gap-x-6 gap-y-2 border-b border-(--rule) py-7 transition-colors hover:bg-(--panel)"
+                    >
+                        <div class="col-span-12 sm:col-span-8">
+                            <h2 class="font-display text-xl tracking-[0.02em] text-(--ink) transition-colors group-hover:text-(--chrome) sm:text-2xl">
+                                {post.title}
+                            </h2>
+                            {post.description && (
+                                <p class="mt-1.5 max-w-[58ch] text-sm leading-relaxed text-(--ink-soft)">
+                                    {post.description}
+                                </p>
+                            )}
+                        </div>
+                        <div class="col-span-12 flex flex-wrap items-center gap-3 sm:col-span-4 sm:justify-end">
+                            <time class="font-data text-(--ink-faint)" datetime={post.date}>
+                                {formatDate(post.date)}
+                            </time>
+                            <span class="font-data text-(--ink-faint)">
+                                {readTime(post.body)}
+                            </span>
+                        </div>
+                    </a>
+                ))
+            }
+        </div>
+
+        <p class="mt-10">
+            <a href="/tags/" class="font-data text-(--ink-soft) transition-colors hover:text-(--chrome)">
+                ← All destinations
+            </a>
+        </p>
+    </section>
 </Page>

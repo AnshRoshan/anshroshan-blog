@@ -1,145 +1,160 @@
 ---
 import Page from "../layouts/Page.astro";
-import PostItem from "../components/PostItem.astro";
-import Tag from "../components/Tag.astro";
-import {
-    getPosts,
-    getAllTags,
-    sortTagsByCount,
-    readTime,
-    bodyToText,
-} from "../lib/posts";
-import { siteConfig } from "../lib/site";
+import { getPosts, getAllTags, sortTagsByCount, readTime, bodyToText, formatDate, slugifyTag } from "../lib/posts";
 import { urlForImage } from "../lib/image";
+import { siteConfig } from "../lib/site";
 
 const posts = await getPosts();
 const tags = getAllTags(posts);
 const sortedTags = sortTagsByCount(tags);
 
-// The issue's lead: the newest essay gets the display treatment.
+// The lead: the newest essay takes the backlit panel.
 const [lead, ...earlier] = posts;
 const firstLines = bodyToText(lead?.body).slice(0, 180);
 const leadDeck =
-    lead?.description ??
-    (firstLines.length ? `${firstLines.trim()}…` : "");
+    lead?.description ?? (firstLines.length ? `${firstLines.trim()}…` : "");
 const leadCover = lead?.coverImage
     ? urlForImage(lead.coverImage).width(1600).url()
     : null;
+const pad2 = (n: number) => String(n).padStart(2, "0");
 ---
 
-<Page title={`${siteConfig.title}`} description={siteConfig.description}>
+<Page title={siteConfig.title} description={siteConfig.description}>
     {
-        lead && (
-            <section class="settle pt-14 md:pt-20">
-                <a href={`/blog/${lead.slug}/`} class="group block">
-                    {
-                        leadCover && (
-                            <img
-                                src={leadCover}
-                                alt={lead.coverImage?.alt || lead.title}
-                                width="1600"
-                                height="900"
-                                loading="eager"
-                                class="mb-10 aspect-[16/9] w-full rounded-[10px] border border-(--rule) object-cover"
-                            />
-                        )
-                    }
-                    <h1 class="font-display max-w-[24ch] text-[2.7rem] leading-[1.04] font-medium tracking-[-0.025em] text-balance transition-colors duration-300 group-hover:text-(--vermilion) md:text-[3.6rem]">
-                        {lead.title}
-                    </h1>
-                    {leadDeck && (
-                        <p class="mt-6 max-w-[62ch] text-[1.25rem] leading-[1.55] text-(--ink-soft) md:text-[1.35rem]">
-                            {leadDeck}
-                        </p>
-                    )}
-                    <div class="font-data mt-7 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] uppercase text-(--ink-faint)">
-                        <time datetime={lead.date}>
-                            {new Date(lead.date).toLocaleDateString("en-US", {
-                                month: "long",
-                                day: "numeric",
-                                year: "numeric",
-                            })}
-                        </time>
-                        <span aria-hidden="true">·</span>
-                        <span>{readTime(lead.body)} read</span>
-                        {lead.tags?.length && (
-                            <>
-                                <span aria-hidden="true">·</span>
-                                <span>{lead.tags.join(" · ")}</span>
-                            </>
+        lead ? (
+            <section class="mx-auto w-full max-w-[76rem] px-6 pt-14 md:px-10 md:pt-20">
+                <div class="seam roll-in">
+                    <span>Now showing</span>
+                </div>
+
+                <!-- Backlit lead panel -->
+                <a
+                    href={`/blog/${lead.slug}/`}
+                    class="group roll-in roll-in-1 mt-8 block border border-(--rule) bg-(--panel) transition-colors duration-300 hover:border-(--chrome)"
+                >
+                    <div class="grid lg:grid-cols-[1.1fr_0.9fr]">
+                        <div class="flex flex-col justify-between gap-8 p-7 sm:p-10 lg:p-12">
+                            <div>
+                                <div class="font-data flex flex-wrap items-center gap-4 text-(--chrome)">
+                                    <span class="border border-(--chrome) px-2 py-1">
+                                        NX-{pad2(1)}
+                                    </span>
+                                    <span>
+                                        {new Date(lead.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                                    </span>
+                                    <span aria-hidden="true">/</span>
+                                    <span>{readTime(lead.body)}</span>
+                                </div>
+
+                                <h1
+                                    class="font-display mt-7 text-[2.4rem] leading-[1.02] text-(--ink) transition-colors duration-300 group-hover:text-(--chrome) sm:text-[3rem] lg:text-[3.6rem]"
+                                >
+                                    {lead.title}
+                                </h1>
+                            </div>
+
+                            <div>
+                                {
+                                    leadDeck && (
+                                        <p class="max-w-[56ch] text-base leading-[1.6] text-(--ink-soft) sm:text-lg">
+                                            {leadDeck}
+                                        </p>
+                                    )
+                                }
+                                <div class="mt-8 flex flex-wrap items-center justify-between gap-6">
+                                    <div class="flex flex-wrap gap-2">
+                                        {lead.tags?.map((tag) => (
+                                            <span class="dest-chip">{tag}</span>
+                                        ))}
+                                    </div>
+                                    <span class="plate">Advance →</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {leadCover && (
+                            <div class="relative min-h-[280px] border-t border-(--rule) lg:border-t-0 lg:border-l">
+                                <img
+                                    src={leadCover}
+                                    alt={lead.coverImage?.alt || lead.title}
+                                    width="1200"
+                                    height="900"
+                                    loading="eager"
+                                    class="absolute inset-0 h-full w-full object-cover"
+                                />
+                            </div>
                         )}
-                        <span
-                            class="font-data ml-1 text-(--vermilion)"
-                            aria-hidden="true"
-                        >
-                            Read the essay →
-                        </span>
                     </div>
                 </a>
             </section>
-        )
-    }
-
-    <div class="settle settle-1 mt-16 grid grid-cols-12 gap-x-4 gap-y-12 md:gap-x-10">
-        <section class="col-span-12 lg:col-span-9">
-            <h2
-                class="font-data border-b border-(--rule-strong) pb-3 text-[0.7rem] uppercase text-(--ink-soft)"
-            >
-                Earlier writings
-            </h2>
-            <div class="mt-8">
-                {
-                    earlier.length > 0 ? (
-                        earlier.map((post, i) => (
-                            <PostItem
-                                index={earlier.length - i}
-                                slug={post.slug}
-                                date={post.date}
-                                title={post.title}
-                                description={post.description}
-                                tags={post.tags}
-                                readTime={readTime(post.body)}
-                            />
-                        ))
-                    ) : (
-                        <p class="py-10 text-[1.05rem] italic text-(--ink-soft)">
-                            The earlier writings are still in the drawer —
-                            this is the first piece.
-                        </p>
-                    )
-                }
-            </div>
-        </section>
-
-        <aside class="col-span-12 lg:col-span-3">
-            <h2
-                class="font-data border-b border-(--rule) pb-3 text-[0.7rem] uppercase text-(--ink-soft)"
-            >
-                Topics
-            </h2>
-            <div class="mt-5 flex flex-wrap gap-2 lg:flex-col lg:items-start lg:gap-3">
-                {
-                    sortedTags.map((tag) => (
-                        <Tag tag={tag} count={tags[tag]} />
-                    ))
-                }
-            </div>
-            <p class="font-data mt-8 text-[0.7rem] uppercase text-(--ink-faint)">
-                <a href="/rss.xml" class="bloom">Subscribe via RSS</a>
-            </p>
-        </aside>
-    </div>
-
-    {
-        !lead && (
-            <section class="settle py-24 text-center">
-                <h1 class="font-display text-[2.4rem] font-medium tracking-[-0.02em]">
+        ) : (
+            <section class="mx-auto w-full max-w-[76rem] px-6 py-24 text-center md:px-10">
+                <div class="seam justify-center"><span>Blank board</span></div>
+                <h1 class="font-display mt-10 text-4xl text-(--ink) sm:text-5xl">
                     The first essay is at the printers.
                 </h1>
-                <p class="mt-4 text-[1.05rem] italic text-(--ink-soft)">
+                <p class="mt-4 text-(--ink-soft)">
                     Nothing is published yet — check back shortly.
                 </p>
             </section>
         )
     }
+
+    <section class="mx-auto w-full max-w-[76rem] px-6 pt-16 md:px-10 md:pt-24">
+        <div class="seam roll-in"><span>Earlier courses</span></div>
+
+        <div class="roll-in roll-in-2 mt-8 border-t border-(--rule)">
+            {
+                earlier.length > 0 ? (
+                    earlier.map((post, i) => (
+                        <a
+                            href={`/blog/${post.slug}/`}
+                            class="group grid grid-cols-12 items-baseline gap-x-6 gap-y-2 border-b border-(--rule) py-7 transition-colors hover:bg-(--panel)"
+                        >
+                            <span class="font-data col-span-2 text-(--chrome) sm:col-span-1">
+                                NX-{pad2(earlier.length - i + 1)}
+                            </span>
+                            <div class="col-span-10 sm:col-span-8">
+                                <h2 class="font-display text-xl tracking-[0.02em] text-(--ink) transition-colors group-hover:text-(--chrome) sm:text-2xl">
+                                    {post.title}
+                                </h2>
+                                {post.description && (
+                                    <p class="mt-1.5 max-w-[58ch] text-sm leading-relaxed text-(--ink-soft)">
+                                        {post.description}
+                                    </p>
+                                )}
+                            </div>
+                            <div class="col-span-12 flex flex-wrap items-center gap-3 sm:col-span-3 sm:justify-end">
+                                <time class="font-data text-(--ink-faint)" datetime={post.date}>
+                                    {formatDate(post.date)}
+                                </time>
+                                <span class="font-data text-(--ink-faint)">
+                                    {readTime(post.body)}
+                                </span>
+                            </div>
+                        </a>
+                    ))
+                ) : (
+                    <p class="border-b border-(--rule) py-10 text-(--ink-soft)">
+                        The earlier courses are still in the yard — this is the
+                        first piece.
+                    </p>
+                )
+            }
+        </div>
+
+        <!-- Topics as destinations -->
+        <div class="mt-14 flex flex-wrap items-center gap-3">
+            <span class="font-data text-(--ink-faint)">Destinations →</span>
+            {
+                sortedTags.map((tag) => (
+                    <a href={`/tags/${slugifyTag(tag)}/`} class="dest-chip">
+                        {tag}
+                        <span class="text-(--chrome)">{tags[tag]}</span>
+                    </a>
+                ))
+            }
+            <a href="/rss.xml" class="dest-chip">RSS</a>
+        </div>
+    </section>
 </Page>

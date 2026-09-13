@@ -1,13 +1,6 @@
 ---
 import Page from "../../layouts/Page.astro";
-import Tag from "../../components/Tag.astro";
-import {
-    getPost,
-    getPosts,
-    formatDate,
-    readTime,
-    slugifyTag,
-} from "../../lib/posts";
+import { getPost, getPosts, formatDate, readTime } from "../../lib/posts";
 import { urlForImage } from "../../lib/image";
 import { portableTextToHtml } from "../../lib/portable";
 import { siteConfig } from "../../lib/site";
@@ -20,7 +13,6 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-// The listing query omits bodies; fetch the full post for the essay page.
 const post = await getPost(slug ?? "");
 if (!post) {
     return new Response(null, { status: 404 });
@@ -30,12 +22,16 @@ if (!post) {
 const all = await getPosts();
 const idx = all.findIndex((p) => p.slug === slug);
 const newer = idx > 0 ? all[idx - 1] : undefined;
-const older = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : undefined;
+const older =
+    idx >= 0 && idx < all.length - 1 ? all[idx + 1] : undefined;
 
 // Up to three related essays sharing a tag, excluding the current one.
 const related = all
-    .filter((p) => p.slug !== slug && p.tags?.some((t) => post.tags?.includes(t)))
+    .filter(
+        (p) => p.slug !== slug && p.tags?.some((t) => post.tags?.includes(t)),
+    )
     .slice(0, 3);
+
 const bodyHtml = portableTextToHtml(post.body);
 const coverImage = post.coverImage
     ? urlForImage(post.coverImage).width(1600).url()
@@ -57,43 +53,44 @@ const jsonLd = JSON.stringify({
 });
 ---
 
-<Page title={`${post.title} · ${siteConfig.name}`} description={post.description}>
+<Page
+    title={`${post.title} · ${siteConfig.name}`}
+    description={post.description}
+>
     <script type="application/ld+json" set:html={jsonLd} />
     <div class="progress-rail" aria-hidden="true"></div>
 
-    <article class="settle pt-12 md:pt-16">
-        <nav
-            class="font-data text-[0.7rem] uppercase text-(--ink-faint)"
-            aria-label="Back"
-        >
-            <a href="/" class="bloom">← Contents</a>
-        </nav>
+    <article class="mx-auto w-full max-w-[76rem] px-6 pt-12 md:px-10 md:pt-16">
+        <!-- Course header: code plate + title -->
+        <header class="roll-in">
+            <div class="font-data flex flex-wrap items-center gap-4 text-(--chrome)">
+                <span class="border border-(--chrome) px-2 py-1">
+                    {new Date(post.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                </span>
+                <span>{readTime(post.body)} read</span>
+                <span aria-hidden="true">/</span>
+                <a href="/" class="transition-colors hover:text-(--ink)">← All courses</a>
+            </div>
 
-        <header class="mt-10 border-b border-(--rule) pb-10">
             <h1
-                class="font-display max-w-[26ch] text-[2.4rem] leading-[1.06] font-medium tracking-[-0.025em] text-balance md:text-[3.2rem]"
+                class="font-display mt-7 max-w-[26ch] text-[2.5rem] leading-[1.02] text-(--ink) sm:text-[3.2rem] lg:text-[4rem]"
             >
                 {post.title}
             </h1>
+
             {
                 post.description && (
-                    <p class="mt-6 max-w-[60ch] text-[1.25rem] leading-[1.55] italic text-(--ink-soft)">
+                    <p class="mt-6 max-w-[60ch] text-lg leading-[1.6] text-(--ink-soft)">
                         {post.description}
                     </p>
                 )
             }
-            <div class="font-data mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.7rem] uppercase text-(--ink-faint)">
-                <span class="text-(--ink)">By {siteConfig.author}</span>
-                <span aria-hidden="true">·</span>
-                <time datetime={post.date}>{formatDate(post.date)}</time>
-                <span aria-hidden="true">·</span>
-                <span>{readTime(post.body)} read</span>
-            </div>
+
             {
                 post.tags?.length && (
-                    <div class="mt-5 flex flex-wrap gap-2">
+                    <div class="mt-7 flex flex-wrap gap-2">
                         {post.tags.map((tag) => (
-                            <Tag tag={tag} />
+                            <span class="dest-chip">{tag}</span>
                         ))}
                     </div>
                 )
@@ -102,109 +99,98 @@ const jsonLd = JSON.stringify({
 
         {
             coverImage && (
-                <figure class="mt-10">
+                <figure class="roll-in roll-in-1 mt-10">
                     <img
                         src={coverImage}
                         alt={post.coverImage?.alt || post.title}
                         width="1600"
                         height="900"
                         loading="eager"
-                        class="aspect-[16/9] w-full rounded-[10px] border border-(--rule) object-cover"
+                        class="aspect-[16/9] w-full border border-(--rule) object-cover"
                     />
-                    {
-                        post.coverImage?.alt && (
-                            <figcaption class="mt-3 text-[0.95rem] italic text-(--ink-soft)">
-                                {post.coverImage.alt}
-                            </figcaption>
-                        )
-                    }
+                    {post.coverImage?.alt && (
+                        <figcaption>{post.coverImage.alt}</figcaption>
+                    )}
                 </figure>
             )
         }
 
-        <div class="essay mt-12" set:html={bodyHtml} />
+        <!-- Reading panel: calico card, the lit blind -->
+        <div
+            class="roll-in roll-in-2 mt-12 border border-(--rule) bg-(--panel) p-7 sm:p-10 lg:p-14"
+        >
+            <div class="essay" set:html={bodyHtml} />
 
+            {
+                related.length > 0 && (
+                    <aside class="mt-14 border-t-2 border-dashed border-(--seam) pt-8">
+                        <h2 class="font-data text-(--ink-faint)">
+                            Related courses
+                        </h2>
+                        <ul class="mt-5 flex flex-col gap-3">
+                            {related.map((r) => (
+                                <li class="flex items-baseline justify-between gap-6">
+                                    <a
+                                        href={`/blog/${r.slug}/`}
+                                        class="font-display text-[1.05rem] tracking-[0.02em] text-(--ink) no-underline transition-colors hover:text-(--chrome)"
+                                    >
+                                        {r.title}
+                                    </a>
+                                    <span class="font-data shrink-0 text-(--ink-faint)">
+                                        {readTime(r.body)}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </aside>
+                )
+            }
+        </div>
+
+        <!-- Prev / next -->
         {
             (newer || older) && (
-                <nav class="essay-nav" aria-label="More essays">
+                <nav class="essay-nav" aria-label="More courses">
                     {older ? (
                         <a href={`/blog/${older.slug}/`}>
-                            <span class="k">← Earlier</span>
+                            <span class="k">← Earlier course</span>
                             <span class="t">{older.title}</span>
                         </a>
                     ) : (
-                        <span />
+                        <span aria-hidden="true" />
                     )}
                     {newer ? (
                         <a href={`/blog/${newer.slug}/`} class="next">
-                            <span class="k">Later →</span>
+                            <span class="k">Later course →</span>
                             <span class="t">{newer.title}</span>
                         </a>
                     ) : (
-                        <span />
+                        <span aria-hidden="true" />
                     )}
                 </nav>
             )
         }
 
-        {
-            related.length > 0 && (
-                <aside class="mt-12">
-                    <h2 class="font-data border-b border-(--rule) pb-3 text-[0.7rem] uppercase text-(--ink-faint)">
-                        Related essays
-                    </h2>
-                    <ul class="mt-5 flex flex-col gap-3">
-                        {related.map((r) => (
-                            <li class="flex items-baseline justify-between gap-6">
-                                <a
-                                    href={`/blog/${r.slug}/`}
-                                    class="bloom font-display text-[1.05rem] font-medium"
-                                >
-                                    {r.title}
-                                </a>
-                                <span class="font-data shrink-0 text-[0.7rem] uppercase text-(--ink-faint)">
-                                    {readTime(r.body)}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </aside>
-            )
-        }
-
-        <!-- End matter -->
-        <footer class="mt-20 border-t border-(--rule-strong) pt-10">
-            <div class="grid grid-cols-12 gap-x-4 gap-y-6 md:gap-x-8">
-                <div class="col-span-12 md:col-span-8">
-                    <p class="font-display text-[1.2rem] font-medium">
-                        {siteConfig.author}
-                    </p>
-                    <p class="mt-2 max-w-[52ch] text-[1rem] leading-[1.6] text-(--ink-soft)">
-                        Gen AI developer building agentic systems, RAG
-                        pipelines, and full-stack AI products that ship to
-                        production. This essay is part of an open notebook —
-                        the working notes come from shipping, not theorizing.
-                    </p>
-                </div>
-                <div class="col-span-12 md:col-span-4 md:text-right">
-                    <p class="font-data text-[0.7rem] uppercase text-(--ink-faint)">
-                        Continue
-                    </p>
-                    <p class="mt-3 space-x-5">
-                        <a
-                            href={`${siteConfig.portfolioUrl}/contact`}
-                            target="_blank"
-                            rel="noreferrer"
-                            class="bloom font-data text-[0.7rem] uppercase"
-                        >
-                            Get in touch<span aria-hidden="true" class="ml-1">↗</span>
-                        </a>
-                        <a href="/" class="bloom font-data text-[0.7rem] uppercase">
-                            More writings
-                        </a>
-                    </p>
-                </div>
+        <!-- Author plate -->
+        <footer class="mt-14 grid gap-6 border border-(--rule) bg-(--panel) p-7 sm:grid-cols-[1fr_auto] sm:items-center sm:p-9">
+            <div>
+                <p class="font-display text-lg tracking-[0.02em] text-(--ink)">
+                    {siteConfig.author}
+                </p>
+                <p class="mt-1.5 max-w-[54ch] text-sm leading-relaxed text-(--ink-soft)">
+                    AI Engineer at TCS. These notes come from shipping agentic
+                    systems and RAG pipelines to production — not from
+                    theorizing about them.
+                </p>
             </div>
+            <a
+                href={`${siteConfig.portfolioUrl}/contact`}
+                target="_blank"
+                rel="noreferrer"
+                class="plate w-fit"
+            >
+                Get in touch ↗
+            </a>
         </footer>
     </article>
 </Page>
