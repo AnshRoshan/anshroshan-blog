@@ -9,12 +9,36 @@
 import { codeInput } from "@sanity/code-input";
 import { visionTool } from "@sanity/vision";
 import { defineConfig } from "sanity";
-import { structureTool } from "sanity/structure";
+import { structureTool, type StructureResolver } from "sanity/structure";
 import { schema } from "./schemaTypes";
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "497efmiy";
 const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 const apiVersion = process.env.SANITY_STUDIO_API_VERSION || "2024-10-01";
+
+// Writing-first desk: newest posts on top (drafts float up via _updatedAt),
+// project documents demoted to an archive section.
+const structure: StructureResolver = (S) =>
+    S.list()
+        .title("Content")
+        .items([
+            S.listItem()
+                .title("Essays")
+                .icon(() => "✍️")
+                .child(
+                    S.documentTypeList("post")
+                        .title("Essays")
+                        .defaultOrdering([
+                            { field: "publishedAt", direction: "desc" },
+                        ]),
+                ),
+            S.divider(),
+            S.listItem()
+                .title("Projects — archive")
+                .child(
+                    S.documentTypeList("project").title("Projects (archive)"),
+                ),
+        ]);
 
 export default defineConfig({
     name: "default",
@@ -23,7 +47,7 @@ export default defineConfig({
     dataset,
     schema,
     plugins: [
-        structureTool(),
+        structureTool({ structure }),
         codeInput(),
         visionTool({ defaultApiVersion: apiVersion }),
     ],

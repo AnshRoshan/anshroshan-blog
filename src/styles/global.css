@@ -299,3 +299,90 @@ a {
     font-size: 0.95rem;
     color: var(--ink-soft);
 }
+
+/* ---------- reading progress (CSS scroll-driven, zero JS) ---------- */
+
+@keyframes read-progress {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+.progress-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 60;
+    background: transparent;
+    transform-origin: 0 50%;
+    animation: read-progress linear both;
+    /* the bar fills across the whole document scroll */
+    animation-timeline: scroll(root);
+}
+
+@supports not (animation-timeline: scroll()) {
+    .progress-rail {
+        display: none;
+    }
+}
+
+/* ---------- end-of-essay navigation ---------- */
+
+.essay-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    margin-top: 3rem;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--rule);
+}
+
+@media (min-width: 640px) {
+    .essay-nav {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.essay-nav a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: var(--paper);
+    padding: 1.4rem 1.5rem;
+    transition: background 0.25s var(--ease-out);
+}
+
+.essay-nav a:hover {
+    background: var(--paper-deep);
+}
+
+.essay-nav .k {
+    font-family: var(--font-data);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.essay-nav .t {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+
+.essay-nav a:hover .t {
+    color: var(--vermilion);
+}
+
+.essay-nav a.next {
+    text-align: right;
+}

@@ -10,6 +10,7 @@ import {
     bodyToText,
 } from "../lib/posts";
 import { siteConfig } from "../lib/site";
+import { urlForImage } from "../lib/image";
 
 const posts = await getPosts();
 const tags = getAllTags(posts);
@@ -21,6 +22,9 @@ const firstLines = bodyToText(lead?.body).slice(0, 180);
 const leadDeck =
     lead?.description ??
     (firstLines.length ? `${firstLines.trim()}…` : "");
+const leadCover = lead?.coverImage
+    ? urlForImage(lead.coverImage).width(1600).url()
+    : null;
 ---
 
 <Page title={`${siteConfig.title}`} description={siteConfig.description}>
@@ -28,6 +32,18 @@ const leadDeck =
         lead && (
             <section class="settle pt-14 md:pt-20">
                 <a href={`/blog/${lead.slug}/`} class="group block">
+                    {
+                        leadCover && (
+                            <img
+                                src={leadCover}
+                                alt={lead.coverImage?.alt || lead.title}
+                                width="1600"
+                                height="900"
+                                loading="eager"
+                                class="mb-10 aspect-[16/9] w-full rounded-[10px] border border-(--rule) object-cover"
+                            />
+                        )
+                    }
                     <h1 class="font-display max-w-[24ch] text-[2.7rem] leading-[1.04] font-medium tracking-[-0.025em] text-balance transition-colors duration-300 group-hover:text-(--vermilion) md:text-[3.6rem]">
                         {lead.title}
                     </h1>

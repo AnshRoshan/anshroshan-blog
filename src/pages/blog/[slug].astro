@@ -6,6 +6,7 @@ import {
     getPosts,
     formatDate,
     readTime,
+    slugifyTag,
 } from "../../lib/posts";
 import { urlForImage } from "../../lib/image";
 import { portableTextToHtml } from "../../lib/portable";
@@ -24,6 +25,17 @@ const post = await getPost(slug ?? "");
 if (!post) {
     return new Response(null, { status: 404 });
 }
+
+// Chronological neighbours for end-of-essay navigation.
+const all = await getPosts();
+const idx = all.findIndex((p) => p.slug === slug);
+const newer = idx > 0 ? all[idx - 1] : undefined;
+const older = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : undefined;
+
+// Up to three related essays sharing a tag, excluding the current one.
+const related = all
+    .filter((p) => p.slug !== slug && p.tags?.some((t) => post.tags?.includes(t)))
+    .slice(0, 3);
 const bodyHtml = portableTextToHtml(post.body);
 const coverImage = post.coverImage
     ? urlForImage(post.coverImage).width(1600).url()
@@ -47,6 +59,7 @@ const jsonLd = JSON.stringify({
 
 <Page title={`${post.title} · ${siteConfig.name}`} description={post.description}>
     <script type="application/ld+json" set:html={jsonLd} />
+    <div class="progress-rail" aria-hidden="true"></div>
 
     <article class="settle pt-12 md:pt-16">
         <nav
@@ -110,6 +123,54 @@ const jsonLd = JSON.stringify({
         }
 
         <div class="essay mt-12" set:html={bodyHtml} />
+
+        {
+            (newer || older) && (
+                <nav class="essay-nav" aria-label="More essays">
+                    {older ? (
+                        <a href={`/blog/${older.slug}/`}>
+                            <span class="k">← Earlier</span>
+                            <span class="t">{older.title}</span>
+                        </a>
+                    ) : (
+                        <span />
+                    )}
+                    {newer ? (
+                        <a href={`/blog/${newer.slug}/`} class="next">
+                            <span class="k">Later →</span>
+                            <span class="t">{newer.title}</span>
+                        </a>
+                    ) : (
+                        <span />
+                    )}
+                </nav>
+            )
+        }
+
+        {
+            related.length > 0 && (
+                <aside class="mt-12">
+                    <h2 class="font-data border-b border-(--rule) pb-3 text-[0.7rem] uppercase text-(--ink-faint)">
+                        Related essays
+                    </h2>
+                    <ul class="mt-5 flex flex-col gap-3">
+                        {related.map((r) => (
+                            <li class="flex items-baseline justify-between gap-6">
+                                <a
+                                    href={`/blog/${r.slug}/`}
+                                    class="bloom font-display text-[1.05rem] font-medium"
+                                >
+                                    {r.title}
+                                </a>
+                                <span class="font-data shrink-0 text-[0.7rem] uppercase text-(--ink-faint)">
+                                    {readTime(r.body)}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </aside>
+            )
+        }
 
         <!-- End matter -->
         <footer class="mt-20 border-t border-(--rule-strong) pt-10">

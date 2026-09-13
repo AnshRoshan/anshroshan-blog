@@ -59,14 +59,24 @@ export const postType = defineType({
         }),
     ],
     preview: {
-        select: { title: "title", subtitle: "publishedAt", media: "coverImage" },
-        prepare({ title, subtitle, media }) {
+        select: {
+            title: "title",
+            media: "coverImage",
+            publishedAt: "publishedAt",
+            tags: "tags",
+            published: "published",
+        },
+        prepare({ title, media, publishedAt, tags, published }) {
+            const date = publishedAt
+                ? new Date(publishedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      year: "numeric",
+                  })
+                : "No date";
             return {
-                title,
+                title: published === false ? `🚧 ${title}` : title,
                 media,
-                subtitle: subtitle
-                    ? new Date(subtitle).toLocaleDateString()
-                    : "Unpublished",
+                subtitle: `${date}${tags?.length ? ` · ${tags.join(", ")}` : ""}`,
             };
         },
     },
