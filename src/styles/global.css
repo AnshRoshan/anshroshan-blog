@@ -1,46 +1,41 @@
 /* ============================================================
-   DEPOT BLIND — Ansh Roshan's writing site
-   A monitoring surface built as a depot destination blind: deep
-   depot-green ground, backlit chrome-yellow display type, calico
-   panels, and the seam as a section device.
+   DEPOT — Ansh Roshan's writing site
+   Clean black-and-white editorial with a single saffron accent.
+   The destination-blind structure stays: plate codes, seams,
+   course rows, calico-free neutral panels.
    Display: Anton (uppercase). Body: Archivo. Data: IBM Plex Mono.
-   Night board: backlit green + chrome. Day board: calico + green.
    ============================================================ */
 
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 :root {
-    /* DAY BOARD — calico ground, depot green ink */
-    --ground: #f3efe6;
-    --ground-rgb: 243, 239, 230;
-    --panel: #fbf9f3;
-    --ink: #14382b;
-    --ink-soft: #3f5c50;
-    --ink-faint: #6b8378;
-    --chrome: #a87600; /* chrome yellow, darkened for light ground */
-    --chrome-strong: #f5b700;
-    --seam: rgba(20, 56, 43, 0.3);
-    --rule: rgba(20, 56, 43, 0.18);
-    --code-bg: #14382b;
-    --code-fg: #f3efe6;
+    /* DAY — near-white ground, black ink, saffron accent */
+    --ground: #fafafa;
+    --ground-rgb: 250, 250, 250;
+    --panel: #ffffff;
+    --ink: #111111;
+    --ink-soft: #525252;
+    --ink-faint: #737373;
+    --chrome: #b45309; /* saffron, darkened for light ground */
+    --chrome-strong: #f59e0b;
+    --seam: rgba(0, 0, 0, 0.22);
+    --rule: rgba(0, 0, 0, 0.1);
     --video-opacity: 0;
 }
 
 .dark {
-    /* NIGHT BOARD — backlit: deep green ground, calico text, chrome glow */
-    --ground: #0c211a;
-    --ground-rgb: 12, 33, 26;
-    --panel: #17332a;
-    --ink: #f3efe6;
-    --ink-soft: rgba(243, 239, 230, 0.68);
-    --ink-faint: rgba(243, 239, 230, 0.42);
-    --chrome: #f5b700;
-    --chrome-strong: #f5b700;
-    --seam: rgba(245, 183, 0, 0.4);
-    --rule: rgba(243, 239, 230, 0.14);
-    --code-bg: #0a1813;
-    --code-fg: #f3efe6;
+    /* NIGHT — near-black ground, white text, saffron accent */
+    --ground: #0a0a0a;
+    --ground-rgb: 10, 10, 10;
+    --panel: #141414;
+    --ink: #f5f5f4;
+    --ink-soft: rgba(245, 245, 244, 0.64);
+    --ink-faint: rgba(245, 245, 244, 0.4);
+    --chrome: #ff9933;
+    --chrome-strong: #ff9933;
+    --seam: rgba(255, 153, 51, 0.32);
+    --rule: rgba(255, 255, 255, 0.12);
     --video-opacity: 0;
 }
 
@@ -66,7 +61,7 @@ body {
 
 ::selection {
     background: var(--chrome-strong);
-    color: #14382b;
+    color: #0a0a0a;
 }
 
 :focus-visible {
@@ -139,7 +134,7 @@ body {
     align-items: center;
     gap: 0.5rem;
     background: var(--chrome-strong);
-    color: #14382b;
+    color: #0a0a0a;
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.72rem;
     font-weight: 500;
@@ -429,8 +424,7 @@ body {
 .essay :not(pre) > code {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.82em;
-    background: var(--ground-rgb) none;
-    background: rgba(var(--ground-rgb), 0.5);
+    background: var(--panel);
     border: 1px solid var(--rule);
     padding: 0.1em 0.4em;
     border-radius: 4px;
@@ -452,7 +446,7 @@ body {
 
 .essay mark {
     background: var(--chrome-strong);
-    color: #14382b;
+    color: #0a0a0a;
     padding: 0.05em 0.3em;
 }
 
@@ -470,18 +464,17 @@ body {
     color: var(--ink-soft);
 }
 
-/* code specimen — always a calico-backlit card, like the lit blind */
+/* code specimen — neutral dark card */
 .essay pre {
     margin: 1.8em 0;
-    background: #f3efe6;
-    border: 1px solid rgba(20, 56, 43, 0.25);
+    background: #111111;
+    border: 1px solid var(--rule);
     padding: 1.1rem 1.25rem;
     overflow-x: auto;
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.84rem;
     line-height: 1.65;
-    color: #14382b;
-    box-shadow: 0 0 32px rgba(245, 183, 0, 0.08);
+    color: #f5f5f4;
 }
 
 .essay pre code {
@@ -511,17 +504,13 @@ body {
 /* ---------- callouts (depot signal plates) ---------- */
 
 .essay .callout {
-    --callout: #a87600;
+    --callout: var(--ink-soft);
     margin: 2em 0;
     border: 1px solid var(--rule);
     border-left: 4px solid var(--callout);
     background: var(--panel);
     color: var(--ink);
     padding: 1.1rem 1.4rem;
-}
-
-.dark .essay .callout {
-    box-shadow: 0 0 28px rgba(245, 183, 0, 0.06);
 }
 
 .essay .callout .callout-body p {
@@ -542,25 +531,16 @@ body {
     color: inherit;
 }
 
-:root:not(.dark) .essay .callout {
-    color: #14382b;
-}
-
 .essay .callout .font-mono,
 .essay .callout p.font-mono {
     font-family: "IBM Plex Mono", monospace;
     margin: 0 0 0.4rem;
 }
 
-.essay .callout-info { --callout: #a87600; }
-.essay .callout-success { --callout: #2e7d5b; }
-.essay .callout-warning { --callout: #b57e00; }
-.essay .callout-danger { --callout: #c0392b; }
-
-.dark .essay .callout-info { --callout: #f5b700; }
-.dark .essay .callout-success { --callout: #3ecf8e; }
-.dark .essay .callout-warning { --callout: #f5b700; }
-.dark .essay .callout-danger { --callout: #ff6b57; }
+.essay .callout-info { --callout: var(--ink-soft); }
+.essay .callout-success { --callout: #4d7c0f; }
+.essay .callout-warning { --callout: #b45309; }
+.essay .callout-danger { --callout: #b91c1c; }
 
 /* ---------- tables ---------- */
 
